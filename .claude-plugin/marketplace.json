@@ -1,0 +1,16 @@
+{
+  "name": "toon-generator",
+  "owner": {
+    "name": "anomie7"
+  },
+  "plugins": [
+    {
+      "name": "toon-generator",
+      "source": {
+        "source": "github",
+        "repo": "anomie7/toon-generator"
+      },
+      "description": "Instagram webtoon generation pipeline plugin. Bundles 3 skills (toon-prep, toon-gen, toon-reels) and 4 sub-agents (story-writer, reference-explorer, interviewer, doc-generator)."
+    }
+  ]
+}
