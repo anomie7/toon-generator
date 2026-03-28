@@ -2,38 +2,9 @@
 
 ![banner](docs/banner.png)
 
-> Claude Code skill package for automated Instagram webtoon (insta-toon) generation pipeline.
+> 인스타툰 제작의 전체 파이프라인을 자동화하는 Claude Code 스킬 패키지
 
-[English](#english) | [한국어](#한국어)
-
----
-
-## English
-
-**toon-generator-skill** is a set of 3 Claude Code skills that automate the entire Instagram webtoon creation process — from content planning to image generation to video reels.
-
-| Skill | What it does |
-|-------|-------------|
-| **toon-prep** | Socratic interview → content docs → reference images |
-| **toon-gen** | Prompt JSON → ref search/inspect → Gemini API image generation |
-| **toon-reels** | Slide images → MP4 reels with BGM |
-
-### Quick Install
-
-```bash
-git clone https://github.com/anomie7/toon-generator-skill.git ~/.claude/skills/toon-generator-skill
-cd ~/.claude/skills/toon-generator-skill && npm install
-```
-
-### Prerequisites
-
-- [GEMINI_API_KEY](https://aistudio.google.com/) — Google AI Studio
-- Node.js >= 18
-- ffmpeg (`brew install ffmpeg`) — for toon-reels only
-
----
-
-## 한국어
+[English](README.en.md)
 
 ### Demo
 
