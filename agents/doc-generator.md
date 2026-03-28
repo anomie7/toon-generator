@@ -4,6 +4,8 @@ description: >
   interview-result.json과 템플릿을 기반으로 인스타툰 콘텐츠 문서를 자동 생성하는 에이전트.
   캐릭터 시트, 아트 디렉션, 에피소드 설계, 콘티 등 8종 문서를 content/ 디렉토리에 출력한다.
 model: sonnet
+skills:
+  - toon-prep
 tools:
   - Read
   - Glob

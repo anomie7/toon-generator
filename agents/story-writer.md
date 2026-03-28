@@ -5,6 +5,8 @@ description: >
   웹툰 스토리 작가 겸 프롬프트 엔지니어. 에피소드 번호를 지정하면
   해당 에피소드의 슬라이드 프롬프트 JSON을 output/prompts/에 생성한다.
 model: sonnet
+skills:
+  - toon-gen
 tools:
   - Read
   - Glob

@@ -32,8 +32,8 @@ argument-hint: "[--content-dir path] [--skip-interview] [--skip-docs] [--skip-re
 ## 사전 조건
 
 - `GEMINI_API_KEY` 환경변수 설정 (3단계 레퍼런스 이미지 생성에 필요)
-- `npm install`이 완료된 상태 (`${CLAUDE_SKILL_DIR}/../node_modules/` 존재)
-  - 패키지 루트: `${CLAUDE_SKILL_DIR}/../`
+- `npm install`이 완료된 상태 (플러그인 루트의 `node_modules/` 존재)
+  - 패키지 루트: 플러그인 루트 디렉토리
 
 ## 출력 구조
 

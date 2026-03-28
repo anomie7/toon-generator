@@ -1,17 +1,17 @@
 {
-  "name": "toon-generator-skill",
+  "name": "toon-generator",
   "version": "1.0.0",
-  "description": "Reusable Instagram webtoon generation skill package for Claude Code",
+  "description": "Instagram webtoon generation plugin for Claude Code",
   "type": "module",
   "author": "anomie7",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/anomie7/toon-generator-skill.git"
+    "url": "https://github.com/anomie7/toon-generator.git"
   },
-  "homepage": "https://github.com/anomie7/toon-generator-skill#readme",
+  "homepage": "https://github.com/anomie7/toon-generator#readme",
   "keywords": [
-    "claude-code-skill",
+    "claude-code-plugin",
     "webtoon",
     "instagram",
     "instatoon",
@@ -22,9 +22,9 @@
     "node": ">=18"
   },
   "scripts": {
-    "generate": "npx tsx toon-gen/scripts/generate.ts",
-    "inspect": "npx tsx toon-gen/scripts/inspect.ts",
-    "generate-refs": "npx tsx toon-prep/scripts/generate-refs.ts"
+    "generate": "npx tsx skills/toon-gen/scripts/generate.ts",
+    "inspect": "npx tsx skills/toon-gen/scripts/inspect.ts",
+    "generate-refs": "npx tsx skills/toon-prep/scripts/generate-refs.ts"
   },
   "dependencies": {
     "@google/genai": "^1.0.0",

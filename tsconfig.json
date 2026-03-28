@@ -9,6 +9,6 @@
     "outDir": "dist",
     "rootDir": "."
   },
-  "include": ["toon-gen/**/*.ts", "toon-prep/**/*.ts"],
+  "include": ["skills/toon-gen/**/*.ts", "skills/toon-prep/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

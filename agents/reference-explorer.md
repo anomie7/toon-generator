@@ -4,6 +4,8 @@ description: >
   슬라이드별 요소 정의를 입력받아 적합한 레퍼런스 이미지를 탐색하고
   요소별(배경/인물/사물) 매핑으로 추천하는 에이전트.
 model: haiku
+skills:
+  - toon-gen
 tools:
   - Read
   - Glob

@@ -5,6 +5,8 @@ description: >
   5단계 질문을 통해 프로젝트 목적, 캐릭터, 서사, 비주얼 방향을 파악하고
   interview-result.json을 출력한다.
 model: sonnet
+skills:
+  - toon-prep
 tools:
   - Read
   - Glob

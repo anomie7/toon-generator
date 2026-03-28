@@ -1,8 +1,8 @@
-# toon-generator-skill
+# toon-generator
 
 ![banner](docs/banner.png)
 
-> 인스타툰 제작의 전체 파이프라인을 자동화하는 Claude Code 스킬 패키지
+> 인스타툰 제작의 전체 파이프라인을 자동화하는 Claude Code 플러그인
 
 [English](README.en.md)
 
@@ -30,35 +30,38 @@ toon-prep               toon-gen                toon-reels
  참고 이미지 생성          Gemini로 그리기          MP4 출력
 ```
 
-### 포함된 스킬
+### 포함된 스킬 & 에이전트
 
 | 스킬 | 한 줄 설명 |
 |------|-----------|
-| **toon-prep** | AI 인터뷰로 기획 수집 → 캐릭터/콘티/아트디렉션 문서 자동 생성 → 참고 이미지 생성 |
-| **toon-gen** | 참고 이미지 탐색 → 품질 검수 → Gemini API로 웹툰 이미지 생성 |
-| **toon-reels** | 슬라이드 이미지 → 페이드 전환 + BGM → 인스타 릴스 MP4 |
+| **toon-prep** | AI 인터뷰로 기획 수집 -> 캐릭터/콘티/아트디렉션 문서 자동 생성 -> 참고 이미지 생성 |
+| **toon-gen** | 참고 이미지 탐색 -> 품질 검수 -> Gemini API로 웹툰 이미지 생성 |
+| **toon-reels** | 슬라이드 이미지 -> 페이드 전환 + BGM -> 인스타 릴스 MP4 |
+
+| 에이전트 | 소속 스킬 | 역할 |
+|---------|----------|------|
+| **story-writer** | toon-gen | 콘티/에피소드 설계 기반 이미지 프롬프트 JSON 생성 |
+| **reference-explorer** | toon-gen | 슬라이드별 참고 이미지 탐색/추천 |
+| **interviewer** | toon-prep | 소크라테스식 인터뷰로 기획 정보 수집 |
+| **doc-generator** | toon-prep | 인터뷰 결과 기반 콘텐츠 문서 자동 생성 |
 
 ### 설치
 
-#### skills.sh (권장)
+#### 플러그인 설치 (권장)
 
 ```bash
-npx skills add anomie7/toon-generator-skill
+# 프로젝트 로컬에 클론 후 플러그인으로 등록
+git clone https://github.com/anomie7/toon-generator.git .claude/plugins/toon-generator
+cd .claude/plugins/toon-generator && npm install
 ```
-
-#### 수동 설치 - 글로벌 (모든 프로젝트에서 사용)
 
 ```bash
-git clone https://github.com/anomie7/toon-generator-skill.git ~/.claude/skills/toon-generator-skill
-cd ~/.claude/skills/toon-generator-skill && npm install
+# 또는 글로벌 설치 (모든 프로젝트에서 사용)
+git clone https://github.com/anomie7/toon-generator.git ~/.claude/plugins/toon-generator
+cd ~/.claude/plugins/toon-generator && npm install
 ```
 
-#### 수동 설치 - 프로젝트 로컬
-
-```bash
-git clone https://github.com/anomie7/toon-generator-skill.git .claude/skills/toon-generator-skill
-cd .claude/skills/toon-generator-skill && npm install
-```
+설치 후 Claude Code가 자동으로 `skills/`의 3개 스킬과 `agents/`의 4개 에이전트를 인식합니다.
 
 ### 사전 조건
 
@@ -152,38 +155,42 @@ content/
 ### 아키텍처
 
 ```
-toon-generator-skill/
-  toon-prep/
-    SKILL.md                    # 스킬 정의
-    agents/
-      interviewer.md            # AI 인터뷰 에이전트
-      doc-generator.md          # 문서 생성 에이전트
-    scripts/
-      generate-refs.ts          # 참고 이미지 생성 (Gemini API)
-    templates/                  # 문서 템플릿 (9종)
+toon-generator/
+  .claude-plugin/
+    plugin.json                 # 플러그인 메니페스트
 
-  toon-gen/
-    SKILL.md                    # 스킬 정의
-    agents/
-      story-writer.md           # 이미지 프롬프트 생성 에이전트
-      reference-explorer.md     # 참고 이미지 탐색/추천 에이전트
-    scripts/
-      generate.ts               # 이미지 생성 (Gemini API)
-      inspect.ts                # 이미지 품질 검증 (Gemini API)
-    lib/
-      config.ts                 # 설정 + 모델 레지스트리
-      types.ts                  # 타입 정의 (Zod 스키마)
-      image-utils.ts            # 이미지 유틸리티
+  agents/                       # 서브에이전트 (자동 발견)
+    story-writer.md             # 이미지 프롬프트 생성
+    reference-explorer.md       # 참고 이미지 탐색/추천
+    interviewer.md              # AI 인터뷰
+    doc-generator.md            # 문서 자동 생성
 
-  toon-reels/
-    SKILL.md                    # 스킬 정의
-    scripts/
-      make-reels.sh             # ffmpeg 기반 영상 생성
+  skills/                       # 스킬 (자동 발견)
+    toon-prep/
+      SKILL.md
+      scripts/
+        generate-refs.ts        # 참고 이미지 생성 (Gemini API)
+      templates/                # 문서 템플릿 (9종)
+
+    toon-gen/
+      SKILL.md
+      scripts/
+        generate.ts             # 이미지 생성 (Gemini API)
+        inspect.ts              # 이미지 품질 검증 (Gemini API)
+      lib/
+        config.ts               # 설정 + 모델 레지스트리
+        types.ts                # 타입 정의 (Zod 스키마)
+        image-utils.ts          # 이미지 유틸리티
+
+    toon-reels/
+      SKILL.md
+      scripts/
+        make-reels.sh           # ffmpeg 기반 영상 생성
 ```
 
 ### 커스터마이징
 
-- **문서 템플릿**: `toon-prep/templates/*.tmpl.md`를 수정하면 생성되는 문서 구조를 변경할 수 있습니다
+- **문서 템플릿**: `skills/toon-prep/templates/*.tmpl.md`를 수정하면 생성되는 문서 구조를 변경할 수 있습니다
 - **아트 디렉션**: `content/visual/art-direction.md`에 스타일/금지 요소를 정의하면 모든 프롬프트에 자동 반영됩니다
 - **에이전트 프롬프트**: `agents/*.md` 파일을 수정하여 에이전트 동작을 조정할 수 있습니다
 

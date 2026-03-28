@@ -48,7 +48,7 @@ argument-hint: "--episode N [--slide N] [--content-dir path] [--model model-name
 
 - `GEMINI_API_KEY` 환경변수 설정
 - `{content-dir}/` 아래에 콘텐츠 문서가 존재해야 함
-- `npm install`이 완료된 상태 (`${CLAUDE_SKILL_DIR}/node_modules/` 존재)
+- `npm install`이 완료된 상태 (플러그인 루트의 `node_modules/` 존재)
 
 ## 필요한 콘텐츠 문서
 
@@ -297,7 +297,7 @@ npx tsx ${CLAUDE_SKILL_DIR}/scripts/generate.ts \
 | `${CLAUDE_SKILL_DIR}/scripts/generate.ts` | Gemini API로 이미지 생성 |
 | `${CLAUDE_SKILL_DIR}/scripts/inspect.ts` | ref/이미지 적합성 검증 |
 
-실행은 항상 `npx tsx`를 사용한다 (스킬 패키지의 node_modules 자동 해결).
+실행은 항상 `npx tsx`를 사용한다 (플러그인 루트의 node_modules 자동 해결).
 
 ## 에이전트
 

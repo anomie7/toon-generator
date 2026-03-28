@@ -1,34 +1,43 @@
-# toon-generator-skill
+# toon-generator
 
 ![banner](docs/banner.png)
 
-> Claude Code skill package for automated Instagram webtoon (insta-toon) generation pipeline.
+> Claude Code plugin for automated Instagram webtoon (insta-toon) generation pipeline.
 
 [한국어](README.md)
 
 ## Overview
 
-**toon-generator-skill** is a set of 3 Claude Code skills that automate the entire Instagram webtoon creation process — from content planning to image generation to video reels.
+**toon-generator** is a Claude Code plugin that bundles 3 skills and 4 sub-agents to automate the entire Instagram webtoon creation process — from content planning to image generation to video reels.
 
 | Skill | What it does |
 |-------|-------------|
-| **toon-prep** | Socratic interview → content docs → reference images |
-| **toon-gen** | Prompt JSON → ref search/inspect → Gemini API image generation |
-| **toon-reels** | Slide images → MP4 reels with BGM |
+| **toon-prep** | Socratic interview -> content docs -> reference images |
+| **toon-gen** | Prompt JSON -> ref search/inspect -> Gemini API image generation |
+| **toon-reels** | Slide images -> MP4 reels with BGM |
+
+| Agent | Skill | Role |
+|-------|-------|------|
+| **story-writer** | toon-gen | Generates image prompt JSON from storyboards |
+| **reference-explorer** | toon-gen | Searches and recommends reference images |
+| **interviewer** | toon-prep | Collects project info via Socratic interview |
+| **doc-generator** | toon-prep | Auto-generates content documents |
 
 ## Quick Install
 
 ```bash
-npx skills add anomie7/toon-generator-skill
+# Project-local (recommended)
+git clone https://github.com/anomie7/toon-generator.git .claude/plugins/toon-generator
+cd .claude/plugins/toon-generator && npm install
 ```
-
-Or manually:
 
 ```bash
 # Global install (available in all projects)
-git clone https://github.com/anomie7/toon-generator-skill.git ~/.claude/skills/toon-generator-skill
-cd ~/.claude/skills/toon-generator-skill && npm install
+git clone https://github.com/anomie7/toon-generator.git ~/.claude/plugins/toon-generator
+cd ~/.claude/plugins/toon-generator && npm install
 ```
+
+Skills and agents are auto-discovered after installation.
 
 ## Prerequisites
 
@@ -77,19 +86,25 @@ Override with `--model <model-name>`.
 ## Architecture
 
 ```
-toon-generator-skill/
-  toon-prep/          # Content preparation skill
-    agents/           #   interviewer, doc-generator
-    scripts/          #   generate-refs.ts (Gemini API)
-    templates/        #   9 document templates
+toon-generator/
+  .claude-plugin/
+    plugin.json         # Plugin manifest
 
-  toon-gen/           # Image generation skill
-    agents/           #   story-writer, reference-explorer
-    scripts/          #   generate.ts, inspect.ts
-    lib/              #   config, types, image-utils
+  agents/               # Sub-agents (auto-discovered)
+    story-writer.md
+    reference-explorer.md
+    interviewer.md
+    doc-generator.md
 
-  toon-reels/         # Video generation skill
-    scripts/          #   make-reels.sh (ffmpeg)
+  skills/               # Skills (auto-discovered)
+    toon-prep/
+      scripts/          #   generate-refs.ts (Gemini API)
+      templates/        #   9 document templates
+    toon-gen/
+      scripts/          #   generate.ts, inspect.ts
+      lib/              #   config, types, image-utils
+    toon-reels/
+      scripts/          #   make-reels.sh (ffmpeg)
 ```
 
 ## License

@@ -1,0 +1,8 @@
+{
+  "name": "toon-generator",
+  "description": "Instagram toon generation pipeline plugin. Supports content preparation (toon-prep), image generation (toon-gen), and reels conversion (toon-reels) with dedicated sub-agents (story-writer, reference-explorer, interviewer, doc-generator).",
+  "version": "1.0.0",
+  "author": {
+    "name": "demin_coder"
+  }
+}
