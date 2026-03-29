@@ -198,9 +198,56 @@ npx tsx ${CLAUDE_SKILL_DIR}/scripts/inspect.ts \
 #### 개선 처리
 
 - score 90+ : 루프 종료, 다음 슬라이드로
-- score < 90 : 개선본을 `output/EP{N}/variables/`에 생성
+- score < 90 : 개선본을 `output/EP{N}/revisions/`에 생성
 - 원본을 직접 덮어쓰지 않는다
 - 최대 3회 개선 시도 후 사용자에게 판단 위임
+
+---
+
+### 재생성 규칙 (원본 보존)
+
+생성된 슬라이드에 대해 재생성/개선을 요청할 때, **원본은 항상 보존**한다.
+
+#### 디렉토리 구조
+
+```
+output/EP{N}/
+  EP{N}_S01_cover.png              # 원본 (덮어쓰지 않음)
+  EP{N}_S01_cover.meta.json
+  ...
+  revisions/                        # 재생성/개선본 폴더
+    v1/
+      EP{N}_S03_scene3.png          # 1차 개선본
+      EP{N}_S03_scene3.meta.json
+      EP{N}_S03_scene3.prompt.json  # 개선에 사용한 프롬프트
+    v2/
+      EP{N}_S03_scene3.png          # 2차 개선본
+      ...
+```
+
+#### 규칙
+
+1. **원본 덮어쓰기 금지**: `output/EP{N}/EP{N}_S{NN}_{slug}.png`는 최초 생성본을 유지
+2. **개선본 위치**: `output/EP{N}/revisions/v{N}/`에 버전별로 저장
+3. **프롬프트 보존**: 개선에 사용한 수정 프롬프트를 `.prompt.json`으로 함께 저장
+4. **채택 시 교체**: 사용자가 개선본을 확인하고 채택을 명시하면, 그때 원본 위치로 복사
+5. **버전 넘버링**: `v1`, `v2`, `v3` 순서로 증가 (기존 revisions 폴더 확인 후 다음 번호 부여)
+
+#### prompt.json 형식
+
+```json
+{
+  "originalSlide": 3,
+  "revisionVersion": 1,
+  "changeReason": "배경 톤이 너무 밝아 감정선과 불일치",
+  "modifiedPrompt": "...(수정된 프롬프트 전문)",
+  "modifiedRefs": ["ref1.png", "ref2.png"],
+  "inspectScore": {
+    "before": 72,
+    "after": 91
+  }
+}
+```
 
 ---
 
