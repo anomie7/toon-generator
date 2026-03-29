@@ -1,8 +1,8 @@
 import { GoogleGenAI } from '@google/genai';
 import * as fs from 'fs';
 import * as path from 'path';
-import { config, models } from '../../toon-gen/lib/config.js';
-import { withRetry } from '../../toon-gen/lib/image-utils.js';
+import { config, models } from '../../toon-slide/lib/config.js';
+import { withRetry } from '../../toon-slide/lib/image-utils.js';
 
 // --- Types ---
 
