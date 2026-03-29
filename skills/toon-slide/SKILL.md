@@ -142,6 +142,7 @@ reference-explorer가 누락으로 보고한 요소만 새로 생성한다.
 npx tsx ${CLAUDE_SKILL_DIR}/scripts/generate.ts \
   --prompt {asset_prompt.json} \
   --slide 1 \
+  --ratio 4:5 \
   --output-dir output/assets/EP{N} \
   --content-dir {content-dir}
 ```
@@ -160,6 +161,7 @@ B(+E)에서 확보한 ref를 pipeline-slide.ts에 전달한다.
 npx tsx ${CLAUDE_SKILL_DIR}/scripts/pipeline-slide.ts \
   --prompt output/prompts/EP{N}_prompts.json \
   --slide {S} \
+  --ratio 4:5 \
   --ref {bg_ref} {char_ref} [obj_ref] \
   --concept "{슬라이드 컨셉}" \
   --content-dir {content-dir} \

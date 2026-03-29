@@ -263,9 +263,7 @@ async function generateRefImage(
     contents: [{ role: 'user', parts: [{ text: spec.prompt }] }],
     config: {
       responseModalities: ['IMAGE'],
-      imageGenerationConfig: {
-        aspectRatio: '4:5',
-      },
+      aspectRatio: '4:5',
     } as Record<string, unknown>,
   });
 

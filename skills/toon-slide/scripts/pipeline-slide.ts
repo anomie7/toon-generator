@@ -46,6 +46,7 @@ interface PipelineArgs {
   concept: string;
   contentDir: string;
   model: string;
+  ratio: string;
   skipInspect: boolean;
 }
 
@@ -67,10 +68,11 @@ function parseArgs(): PipelineArgs {
     }
   }
 
-  if (!parsed.prompt || !parsed.slide || !parsed.concept) {
+  if (!parsed.prompt || !parsed.slide || !parsed.concept || !parsed.ratio) {
     console.error(
-      'Usage: pipeline-slide.ts --prompt <json> --slide <N> --ref <imgs...> --concept "<text>" --content-dir <path> [--model model] [--skip-inspect]',
+      'Usage: pipeline-slide.ts --prompt <json> --slide <N> --ratio 4:5 --ref <imgs...> --concept "<text>" --content-dir <path> [--model model] [--skip-inspect]',
     );
+    if (!parsed.ratio) console.error('Error: --ratio is required (e.g. --ratio 4:5)');
     process.exit(1);
   }
 
@@ -86,6 +88,7 @@ function parseArgs(): PipelineArgs {
     concept: parsed.concept,
     contentDir: parsed['content-dir'] || './content',
     model: parsed.model || '',
+    ratio: parsed.ratio,
     skipInspect: flags.has('skip-inspect'),
   };
 }
@@ -167,7 +170,7 @@ function runGenerate(args: PipelineArgs): GenerateOutcome {
 
   const refsArg = args.refPaths.map((r) => `"${r}"`).join(' ');
   const modelArg = args.model ? `--model ${args.model}` : '';
-  const cmd = `npx tsx "${generateScript}" --prompt "${args.promptPath}" --slide ${args.slide} --ref ${refsArg} --content-dir "${args.contentDir}" ${modelArg}`;
+  const cmd = `npx tsx "${generateScript}" --prompt "${args.promptPath}" --slide ${args.slide} --ratio ${args.ratio} --ref ${refsArg} --content-dir "${args.contentDir}" ${modelArg}`;
 
   console.log(`\n=== Stage F: Generate image ===`);
   console.log(`[generate] slide ${args.slide}, refs: ${args.refPaths.length}`);

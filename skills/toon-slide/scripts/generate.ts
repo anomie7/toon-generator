@@ -41,11 +41,12 @@ function parseArgs() {
     }
   }
 
-  if (!parsed.prompt) {
+  if (!parsed.prompt || !parsed.ratio) {
     console.error(
-      'Usage: generate.ts --prompt <json-path> [--slide N] [--model model-name] [--ref img1 img2 ...] [--output-dir path] [--content-dir path] [--auto-inspect]\n' +
-      '       generate.ts --prompt <json-path> --slide N --fix [--variants N] [--model model-name]',
+      'Usage: generate.ts --prompt <json-path> --ratio 4:5 [--slide N] [--model model-name] [--ref img1 img2 ...] [--output-dir path] [--content-dir path] [--auto-inspect]\n' +
+      '       generate.ts --prompt <json-path> --ratio 4:5 --slide N --fix [--variants N] [--model model-name]',
     );
+    if (!parsed.ratio) console.error('Error: --ratio is required (e.g. --ratio 4:5)');
     process.exit(1);
   }
 
@@ -65,6 +66,7 @@ function parseArgs() {
     variants: parsed.variants ? parseInt(parsed.variants, 10) : 1,
     outputDir: parsed['output-dir'] || '',
     contentDir: parsed['content-dir'] || './content',
+    ratio: parsed.ratio,
   };
 }
 
@@ -90,6 +92,7 @@ async function generateImage(
   stylePrefix: string,
   characterPrefix: string,
   refImages: RefImage[],
+  ratioOverride: string,
 ): Promise<string> {
   const episodeTitleInstruction = (prompt.episodeTitle && prompt.slideNumber === 1)
     ? `\n\nInclude the text "${prompt.episodeTitle}" in small sans-serif font at the top-left corner of the image.`
@@ -127,7 +130,7 @@ async function generateImage(
     contents: [{ role: 'user', parts }],
     config: {
       responseModalities: ['IMAGE'],
-      aspectRatio: prompt.aspectRatio || '4:5',
+      aspectRatio: ratioOverride,
     } as Record<string, unknown>,
   });
 
@@ -229,7 +232,7 @@ async function main() {
           ),
         };
 
-        const expectedRatio = prompt.aspectRatio || '4:5';
+        const effectiveRatio = args.ratio;
         const maxDimensionRetries = 2;
 
         for (let dimAttempt = 0; dimAttempt <= maxDimensionRetries; dimAttempt++) {
@@ -241,22 +244,23 @@ async function main() {
               episodePrompts.stylePrefix,
               episodePrompts.characterPrefix,
               refImages,
+              args.ratio,
             ),
           );
 
           fs.writeFileSync(outputPath, Buffer.from(imageBase64, 'base64'));
           const dims = readImageDimensions(outputPath);
-          const ratioOk = checkAspectRatio(dims, expectedRatio);
+          const ratioOk = checkAspectRatio(dims, effectiveRatio);
 
           if (ratioOk) {
-            console.log(`  dimension: ${dims.width}x${dims.height} (${expectedRatio} OK)`);
+            console.log(`  dimension: ${dims.width}x${dims.height} (${effectiveRatio} OK)`);
             break;
           }
 
           if (dimAttempt < maxDimensionRetries) {
-            console.warn(`  dimension: ${dims.width}x${dims.height} (expected ${expectedRatio}, retry ${dimAttempt + 1}/${maxDimensionRetries})`);
+            console.warn(`  dimension: ${dims.width}x${dims.height} (expected ${effectiveRatio}, retry ${dimAttempt + 1}/${maxDimensionRetries})`);
           } else {
-            console.warn(`  dimension: ${dims.width}x${dims.height} (expected ${expectedRatio}, max retries reached - keeping last result)`);
+            console.warn(`  dimension: ${dims.width}x${dims.height} (expected ${effectiveRatio}, max retries reached - keeping last result)`);
           }
         }
 
