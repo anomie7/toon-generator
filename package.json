@@ -24,7 +24,10 @@
   "scripts": {
     "generate": "npx tsx skills/toon-gen/scripts/generate.ts",
     "inspect": "npx tsx skills/toon-gen/scripts/inspect.ts",
-    "generate-refs": "npx tsx skills/toon-prep/scripts/generate-refs.ts"
+    "generate-refs": "npx tsx skills/toon-prep/scripts/generate-refs.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "RUN_E2E=true vitest run --testPathPattern e2e"
   },
   "dependencies": {
     "@google/genai": "^1.0.0",
@@ -33,6 +36,7 @@
   "devDependencies": {
     "@types/node": "^25.5.0",
     "tsx": "^4.19.0",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.2"
   }
 }
