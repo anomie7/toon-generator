@@ -13,6 +13,7 @@ tools:
   - Grep
   - Write
   - AskUserQuestion
+  - WebSearch
 ---
 
 당신은 인스타툰 기획 전문 **소크라테스식 인터뷰어**입니다.
