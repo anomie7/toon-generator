@@ -20,7 +20,7 @@
 3. 생성된 이미지를 인스타그램 릴스 영상으로 변환합니다
 
 ```
-toon-prep               toon-gen                toon-reels
+toon-prep               toon-slide              toon-reels
 (기획 준비)       -->   (이미지 생성)     -->   (릴스 영상)
 
  AI 인터뷰               레퍼런스 탐색            슬라이드 조합
@@ -28,40 +28,37 @@ toon-prep               toon-gen                toon-reels
  문서 자동 생성            품질 검수                BGM 합성
    |                       |                       |
  참고 이미지 생성          Gemini로 그리기          MP4 출력
+
+또는 /toon-run 으로 전체 파이프라인을 한 번에 실행
 ```
 
 ### 포함된 스킬 & 에이전트
 
 | 스킬 | 한 줄 설명 |
 |------|-----------|
-| **toon-prep** | AI 인터뷰로 기획 수집 -> 캐릭터/콘티/아트디렉션 문서 자동 생성 -> 참고 이미지 생성 |
-| **toon-gen** | 참고 이미지 탐색 -> 품질 검수 -> Gemini API로 웹툰 이미지 생성 |
+| **toon-run** | 전체 파이프라인 오케스트레이터 (prep -> slide -> reels) |
+| **toon-prep** | AI 인터뷰로 기획 수집 -> 문서 자동 생성 -> 품질 검수 -> 참고 이미지 생성 |
+| **toon-slide** | 참고 이미지 탐색 -> 품질 검수 -> Gemini API로 슬라이드 이미지 생성 |
 | **toon-reels** | 슬라이드 이미지 -> 페이드 전환 + BGM -> 인스타 릴스 MP4 |
 
 | 에이전트 | 소속 스킬 | 역할 |
 |---------|----------|------|
-| **story-writer** | toon-gen | 콘티/에피소드 설계 기반 이미지 프롬프트 JSON 생성 |
-| **reference-explorer** | toon-gen | 슬라이드별 참고 이미지 탐색/추천 |
+| **story-writer** | toon-slide | 콘티/에피소드 설계 기반 이미지 프롬프트 JSON 생성 |
+| **reference-explorer** | toon-slide | 슬라이드별 참고 이미지 탐색/추천 |
 | **interviewer** | toon-prep | 소크라테스식 인터뷰로 기획 정보 수집 |
 | **doc-generator** | toon-prep | 인터뷰 결과 기반 콘텐츠 문서 자동 생성 |
+| **doc-inspector** | toon-prep | 생성된 문서 품질 검수 (90점 이상 통과) |
 
 ### 설치
 
-#### 플러그인 설치 (권장)
-
 ```bash
-# 프로젝트 로컬에 클론 후 플러그인으로 등록
-git clone https://github.com/anomie7/toon-generator.git .claude/plugins/toon-generator
-cd .claude/plugins/toon-generator && npm install
+# Claude Code에서 마켓플레이스 추가 후 설치
+/plugin marketplace add anomie7/toon-generator
+/plugin install toon-generator
 ```
 
-```bash
-# 또는 글로벌 설치 (모든 프로젝트에서 사용)
-git clone https://github.com/anomie7/toon-generator.git ~/.claude/plugins/toon-generator
-cd ~/.claude/plugins/toon-generator && npm install
-```
-
-설치 후 Claude Code가 자동으로 `skills/`의 3개 스킬과 `agents/`의 4개 에이전트를 인식합니다.
+설치 후 Claude Code가 자동으로 4개 스킬과 5개 에이전트를 인식합니다.
+스크립트 실행 시 `zod`, `@google/genai` 패키지가 필요하며, 없으면 Claude Code가 자동으로 설치를 안내합니다.
 
 ### 사전 조건
 
@@ -105,24 +102,21 @@ content/
     art-direction.md             # 아트 디렉션
     character-sheet-detailed.md  # 상세 캐릭터 시트
     references/                  # 레퍼런스 이미지 (7종)
-  episode-design/EP1.md~         # 에피소드 설계
-  conti/EP1.md~                  # 콘티
+  episode-design/EP1.md          # 에피소드 설계
+  conti/EP1.md                   # 콘티
 ```
 
-#### 2단계: 이미지 생성 (toon-gen)
+#### 2단계: 이미지 생성 (toon-slide)
 
 ```bash
 # EP1 전체 생성
-/toon-gen --episode 1
+/toon-slide --episode 1
 
 # 특정 슬라이드만
-/toon-gen --episode 3 --slide 2
+/toon-slide --episode 3 --slide 2
 
 # 프로덕션 모델로 생성
-/toon-gen --episode 1 --model gemini-3-pro-image-preview
-
-# 생성 직후 자동 검수
-/toon-gen --episode 1 --auto-inspect
+/toon-slide --episode 1 --model gemini-3-pro-image-preview
 ```
 
 #### 3단계: 릴스 영상 (toon-reels)
@@ -138,9 +132,22 @@ content/
 /toon-reels output/EP1 --ratio 9:16 --fade 0.5
 ```
 
+#### 한 번에 실행 (toon-run)
+
+```bash
+# 전체 파이프라인 (인터뷰 -> 이미지 생성 -> 릴스)
+/toon-run
+
+# 콘텐츠 준비 건너뛰고 EP1만 생성
+/toon-run --skip-prep --episode 1
+
+# 프로덕션 모델로 생성 (릴스 제외)
+/toon-run --model gemini-3-pro-image-preview --skip-reels
+```
+
 ### 모델 자동 선택
 
-`toon-gen`은 슬라이드의 텍스트 유무에 따라 모델을 자동 선택합니다:
+`toon-slide`는 슬라이드의 텍스트 유무에 따라 모델을 자동 선택합니다:
 
 | 조건 | 모델 | 이유 |
 |------|------|------|
@@ -164,17 +171,22 @@ toon-generator/
     reference-explorer.md       # 참고 이미지 탐색/추천
     interviewer.md              # AI 인터뷰
     doc-generator.md            # 문서 자동 생성
+    doc-inspector.md            # 문서 품질 검수
 
   skills/                       # 스킬 (자동 발견)
+    toon-run/
+      SKILL.md                  # 전체 파이프라인 오케스트레이터
+
     toon-prep/
       SKILL.md
       scripts/
         generate-refs.ts        # 참고 이미지 생성 (Gemini API)
       templates/                # 문서 템플릿 (9종)
 
-    toon-gen/
+    toon-slide/
       SKILL.md
       scripts/
+        pipeline-slide.ts       # 슬라이드 파이프라인 (검수 -> 생성)
         generate.ts             # 이미지 생성 (Gemini API)
         inspect.ts              # 이미지 품질 검증 (Gemini API)
       lib/
@@ -198,10 +210,14 @@ toon-generator/
 
 ### Roadmap
 
+- [x] 문서 품질 검수 루프 (doc-inspector 90점 기준)
+- [x] 슬라이드 재생성 시 원본 보존 (revisions 폴더)
+- [x] 슬라이드별 텍스트 유무에 따른 모델 자동 선택
 - [ ] Remotion 기반 고급 릴스 (애니메이션, Ken Burns 효과)
 - [ ] 슬라이드별 텍스트 길이에 따른 자동 duration 조절
 - [ ] 자동 BGM 선택 연동
 - [ ] 에피소드 간 자동 스타일 일관성 검증
+- [ ] 워크플로우 단계별 강제 검증 (slide-plan.json)
 
 ### 라이선스
 

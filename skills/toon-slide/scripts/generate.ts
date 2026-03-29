@@ -127,9 +127,7 @@ async function generateImage(
     contents: [{ role: 'user', parts }],
     config: {
       responseModalities: ['IMAGE'],
-      imageGenerationConfig: {
-        aspectRatio: '4:5',
-      },
+      aspectRatio: prompt.aspectRatio || '4:5',
     } as Record<string, unknown>,
   });
 

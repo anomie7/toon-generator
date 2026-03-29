@@ -39,7 +39,8 @@ argument-hint: "--episode N [--slide N] [--content-dir path] [--model model-name
 
 - `GEMINI_API_KEY` 환경변수 설정
 - `{content-dir}/` 아래에 콘텐츠 문서가 존재해야 함
-- `npm install`이 완료된 상태
+- 프로젝트 루트에 `zod`, `@google/genai` 패키지가 설치된 상태 (`npm install`)
+- 사전 조건이 충족되지 않으면 스킬 실행 전에 사용자에게 안내하고, 필요한 패키지를 설치할지 확인한다
 
 ## 필요한 콘텐츠 문서
 
