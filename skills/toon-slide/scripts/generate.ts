@@ -15,7 +15,7 @@ import {
   toSlug,
   stripDuplicatePrefix,
   saveMetadata,
-  readPngDimensions,
+  readImageDimensions,
   checkAspectRatio,
 } from '../lib/image-utils.js';
 
@@ -247,7 +247,7 @@ async function main() {
           );
 
           fs.writeFileSync(outputPath, Buffer.from(imageBase64, 'base64'));
-          const dims = readPngDimensions(outputPath);
+          const dims = readImageDimensions(outputPath);
           const ratioOk = checkAspectRatio(dims, expectedRatio);
 
           if (ratioOk) {

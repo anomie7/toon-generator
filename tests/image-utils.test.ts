@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import * as path from 'path';
 import {
-  readPngDimensions,
+  readImageDimensions,
   checkAspectRatio,
   stripDuplicatePrefix,
   toSlug,
@@ -10,23 +10,42 @@ import {
 
 const FIXTURES = path.join(import.meta.dirname, 'fixtures');
 
-describe('readPngDimensions', () => {
+describe('readImageDimensions', () => {
   it('reads 4:5 PNG dimensions correctly', () => {
-    const dims = readPngDimensions(path.join(FIXTURES, 'test-4x5.png'));
+    const dims = readImageDimensions(path.join(FIXTURES, 'test-4x5.png'));
     expect(dims.width).toBe(800);
     expect(dims.height).toBe(1000);
   });
 
   it('reads 16:9 PNG dimensions correctly', () => {
-    const dims = readPngDimensions(path.join(FIXTURES, 'test-16x9.png'));
+    const dims = readImageDimensions(path.join(FIXTURES, 'test-16x9.png'));
     expect(dims.width).toBe(1408);
     expect(dims.height).toBe(768);
   });
 
   it('reads square PNG dimensions correctly', () => {
-    const dims = readPngDimensions(path.join(FIXTURES, 'test-square.png'));
+    const dims = readImageDimensions(path.join(FIXTURES, 'test-square.png'));
     expect(dims.width).toBe(1000);
     expect(dims.height).toBe(1000);
+  });
+
+  it('reads 4:5 JPEG dimensions correctly', () => {
+    const dims = readImageDimensions(path.join(FIXTURES, 'test-jpeg-4x5.jpg'));
+    expect(dims.width).toBe(800);
+    expect(dims.height).toBe(1000);
+  });
+
+  it('reads 16:9 JPEG dimensions correctly', () => {
+    const dims = readImageDimensions(path.join(FIXTURES, 'test-jpeg-16x9.jpg'));
+    expect(dims.width).toBe(1408);
+    expect(dims.height).toBe(768);
+  });
+
+  it('reads JPEG saved as .png (format mismatch)', () => {
+    // Simulate the real-world case: Gemini returns JPEG but saved as .png
+    const dims = readImageDimensions(path.join(FIXTURES, 'test-jpeg-16x9.jpg'));
+    expect(dims.width).toBe(1408);
+    expect(dims.height).toBe(768);
   });
 });
 
@@ -36,7 +55,6 @@ describe('checkAspectRatio', () => {
   });
 
   it('passes for close-enough 4:5 ratio (within tolerance)', () => {
-    // 928x1152 = 0.8055... vs 0.8 = within 0.08 tolerance
     expect(checkAspectRatio({ width: 928, height: 1152 }, '4:5')).toBe(true);
   });
 

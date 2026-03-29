@@ -78,24 +78,60 @@ export function stripDuplicatePrefix(prompt: string, prefix: string): string {
   return prompt;
 }
 
-// --- PNG dimension reading (no external dependency) ---
+// --- Image dimension reading (PNG + JPEG, no external dependency) ---
 
 export interface ImageDimensions {
   width: number;
   height: number;
 }
 
-export function readPngDimensions(filePath: string): ImageDimensions {
-  const fd = fs.openSync(filePath, 'r');
-  const header = Buffer.alloc(24);
-  fs.readSync(fd, header, 0, 24, 0);
-  fs.closeSync(fd);
+export function readImageDimensions(filePath: string): ImageDimensions {
+  const buf = fs.readFileSync(filePath);
 
-  // PNG IHDR: width at offset 16 (4 bytes BE), height at offset 20 (4 bytes BE)
-  const width = header.readUInt32BE(16);
-  const height = header.readUInt32BE(20);
-  return { width, height };
+  // PNG: starts with 0x89504E47
+  if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) {
+    return {
+      width: buf.readUInt32BE(16),
+      height: buf.readUInt32BE(20),
+    };
+  }
+
+  // JPEG: starts with 0xFFD8
+  if (buf[0] === 0xff && buf[1] === 0xd8) {
+    let offset = 2;
+    while (offset < buf.length - 1) {
+      if (buf[offset] !== 0xff) break;
+      const marker = buf[offset + 1];
+      // SOF0~SOF15 (0xC0~0xCF, except 0xC4=DHT and 0xCC=DAC)
+      if (marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xcc) {
+        return {
+          height: buf.readUInt16BE(offset + 5),
+          width: buf.readUInt16BE(offset + 7),
+        };
+      }
+      const segLen = buf.readUInt16BE(offset + 2);
+      offset += 2 + segLen;
+    }
+    throw new Error(`Failed to read JPEG dimensions: no SOF marker found in ${filePath}`);
+  }
+
+  // WebP: starts with RIFF....WEBP
+  if (buf[0] === 0x52 && buf[1] === 0x49 && buf[2] === 0x46 && buf[3] === 0x46 &&
+      buf[8] === 0x57 && buf[9] === 0x45 && buf[10] === 0x42 && buf[11] === 0x50) {
+    // VP8 lossy
+    if (buf[12] === 0x56 && buf[13] === 0x50 && buf[14] === 0x38 && buf[15] === 0x20) {
+      return {
+        width: buf.readUInt16LE(26) & 0x3fff,
+        height: buf.readUInt16LE(28) & 0x3fff,
+      };
+    }
+  }
+
+  throw new Error(`Unsupported image format: ${filePath}`);
 }
+
+/** @deprecated Use readImageDimensions instead */
+export const readPngDimensions = readImageDimensions;
 
 export function checkAspectRatio(
   dimensions: ImageDimensions,
