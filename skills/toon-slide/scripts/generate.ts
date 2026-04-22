@@ -302,7 +302,7 @@ async function main() {
         console.log(`[inspect] ${path.basename(result.path)}`);
         try {
           const output = execSync(
-            `npx tsx "${inspectScript}" --refs "${result.path}" --concept "${concept}" --prompt "${promptText.slice(0, 200)}" ${artDirectionArg}`,
+            `node --import tsx "${inspectScript}" --refs "${result.path}" --concept "${concept}" --prompt "${promptText.slice(0, 200)}" ${artDirectionArg}`,
             { encoding: 'utf-8', timeout: 60000 },
           );
           const jsonMatch = output.match(/--- JSON ---\n([\s\S]+)/);

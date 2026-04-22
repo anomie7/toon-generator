@@ -5,7 +5,7 @@
  * Enforces the workflow as code so the orchestrator cannot skip steps.
  *
  * Usage:
- *   npx tsx pipeline-slide.ts \
+ *   node --import tsx pipeline-slide.ts \
  *     --prompt <EP_prompts.json> \
  *     --slide <N> \
  *     --ref <bg.png> <char.png> [obj.png] \
@@ -114,7 +114,7 @@ function runInspect(args: PipelineArgs): InspectOutcome {
   const artDirectionArg = fs.existsSync(artDirectionPath) ? `--art-direction "${artDirectionPath}"` : '';
 
   const refsArg = args.refPaths.map((r) => `"${r}"`).join(' ');
-  const cmd = `npx tsx "${inspectScript}" --refs ${refsArg} --concept "${args.concept}" ${artDirectionArg}`;
+  const cmd = `node --import tsx "${inspectScript}" --refs ${refsArg} --concept "${args.concept}" ${artDirectionArg}`;
 
   console.log(`\n=== Stage C: Inspect refs ===`);
   console.log(`[inspect] refs: ${args.refPaths.map((r) => path.basename(r)).join(', ')}`);
@@ -170,7 +170,7 @@ function runGenerate(args: PipelineArgs): GenerateOutcome {
 
   const refsArg = args.refPaths.map((r) => `"${r}"`).join(' ');
   const modelArg = args.model ? `--model ${args.model}` : '';
-  const cmd = `npx tsx "${generateScript}" --prompt "${args.promptPath}" --slide ${args.slide} --ratio ${args.ratio} --ref ${refsArg} --content-dir "${args.contentDir}" ${modelArg}`;
+  const cmd = `node --import tsx "${generateScript}" --prompt "${args.promptPath}" --slide ${args.slide} --ratio ${args.ratio} --ref ${refsArg} --content-dir "${args.contentDir}" ${modelArg}`;
 
   console.log(`\n=== Stage F: Generate image ===`);
   console.log(`[generate] slide ${args.slide}, refs: ${args.refPaths.length}`);

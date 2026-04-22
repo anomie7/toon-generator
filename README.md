@@ -73,6 +73,8 @@ toon-prep               toon-slide              toon-reels
 
 ### 설치
 
+#### Claude Code
+
 ```bash
 # Claude Code에서 마켓플레이스 추가 후 설치
 /plugin marketplace add anomie7/toon-generator
@@ -81,6 +83,72 @@ toon-prep               toon-slide              toon-reels
 
 설치 후 Claude Code가 자동으로 4개 스킬과 5개 에이전트를 인식합니다.
 스크립트 실행 시 `zod`, `@google/genai` 패키지가 필요하며, 없으면 Claude Code가 자동으로 설치를 안내합니다.
+
+#### Codex
+
+이 저장소의 원본은 Claude Code 플러그인 구조입니다. Codex에서는 `npm run convert:codex`로 self-contained Codex wrapper 플러그인을 생성한 뒤, 프로젝트의 로컬 marketplace에 등록해서 사용합니다.
+
+빈 프로젝트에 추가하는 예시는 다음과 같습니다:
+
+```bash
+# 1) 작업할 빈 프로젝트 생성
+mkdir my-toon-project
+cd my-toon-project
+
+# 2) toon-generator 소스 클론
+mkdir -p .vendor
+git clone https://github.com/anomie7/toon-generator.git .vendor/toon-generator
+
+# 3) 의존성 설치
+cd .vendor/toon-generator
+npm install
+
+# 4) 현재 빈 프로젝트 루트에 Codex 플러그인과 marketplace 생성
+npm run convert:codex -- --output-root ../.. --force
+
+# 5) 생성된 Codex runtime 의존성 설치
+cd ../../plugins/toon-generator/runtime
+npm install
+```
+
+위 명령을 실행하면 빈 프로젝트 루트에 아래 파일들이 생성됩니다:
+
+```text
+my-toon-project/
+  .agents/
+    plugins/
+      marketplace.json
+  plugins/
+    toon-generator/
+      .codex-plugin/
+        plugin.json
+      skills/
+        toon-prep/SKILL.md
+        toon-slide/SKILL.md
+        toon-reels/SKILL.md
+        toon-run/SKILL.md
+      runtime/
+        package.json
+        skills/
+        agents/
+```
+
+Codex는 `.agents/plugins/marketplace.json`을 읽고 `./plugins/toon-generator`를 로컬 플러그인으로 인식합니다. 프로젝트를 Codex에서 다시 열거나 reload하면 `Toon Generator` 플러그인과 `toon-prep`, `toon-slide`, `toon-reels`, `toon-run` 스킬을 사용할 수 있습니다.
+
+생성된 Codex 플러그인은 `plugins/toon-generator/runtime` 안에 실행 스크립트와 템플릿을 함께 포함합니다. 따라서 변환과 runtime 의존성 설치가 끝난 뒤에는 `.vendor/toon-generator` 원본 checkout을 삭제해도 됩니다. 다른 머신에서 프로젝트를 다시 클론했다면, 해당 환경에서 위 변환 명령과 runtime `npm install`을 한 번 더 실행하는 것을 권장합니다.
+
+모든 프로젝트에서 공통으로 쓰고 싶다면 home-local marketplace에 설치할 수도 있습니다:
+
+```bash
+git clone https://github.com/anomie7/toon-generator.git ~/Dev/toon-generator
+cd ~/Dev/toon-generator
+npm install
+npm run convert:codex -- --output-root "$HOME" --force
+cd ~/plugins/toon-generator/runtime
+npm install
+```
+
+이 경우 `~/plugins/toon-generator`와 `~/.agents/plugins/marketplace.json`이 생성됩니다.
 
 ### 사전 조건
 

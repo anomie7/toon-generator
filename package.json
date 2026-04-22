@@ -22,9 +22,10 @@
     "node": ">=18"
   },
   "scripts": {
-    "generate": "npx tsx skills/toon-slide/scripts/generate.ts",
-    "inspect": "npx tsx skills/toon-slide/scripts/inspect.ts",
-    "generate-refs": "npx tsx skills/toon-prep/scripts/generate-refs.ts",
+    "generate": "node --import tsx skills/toon-slide/scripts/generate.ts",
+    "inspect": "node --import tsx skills/toon-slide/scripts/inspect.ts",
+    "generate-refs": "node --import tsx skills/toon-prep/scripts/generate-refs.ts",
+    "convert:codex": "node --import tsx scripts/convert-codex.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "RUN_E2E=true vitest run --testPathPattern e2e"
