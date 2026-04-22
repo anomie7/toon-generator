@@ -27,12 +27,13 @@ argument-hint: "[--content-dir path] [--skip-interview] [--skip-docs] [--skip-re
 - `--skip-interview` (선택): 인터뷰 단계 건너뛰기 (이미 `interview-result.json`이 있을 때)
 - `--skip-docs` (선택): 문서 생성 단계 건너뛰기 (이미 문서가 있을 때)
 - `--skip-refs` (선택): 레퍼런스 이미지 생성 단계 건너뛰기
-- `--model model-name` (선택): Gemini 모델. `gemini-3.1-flash-image-preview` (테스트, 기본값) / `gemini-3-pro-image-preview` (프로덕션)
+- `--model model-name` (선택): 이미지 모델. `gemini-3.1-flash-image-preview` (기본값) / `gemini-3-pro-image-preview` / `gpt-image-2`
 - `--episodes N` (선택): 생성할 에피소드 수 (기본: 인터뷰에서 결정)
 
 ## 사전 조건
 
-- `GEMINI_API_KEY` 환경변수 설정 (3단계 레퍼런스 이미지 생성에 필요)
+- Gemini 모델 사용 시 `GEMINI_API_KEY` 환경변수 설정 (3단계 레퍼런스 이미지 생성에 필요)
+- OpenAI 모델(`gpt-image-2`) 사용 시 `OPENAI_API_KEY` 환경변수 설정
 - `npm install`이 완료된 상태 (플러그인 루트의 `node_modules/` 존재)
   - 패키지 루트: 플러그인 루트 디렉토리
 
@@ -256,7 +257,8 @@ toon-prep 완료:
 
 | 문제 | 해결 |
 |------|------|
-| `GEMINI_API_KEY` 없음 | `.env` 파일에 설정하거나 `export GEMINI_API_KEY=...` 실행 |
+| `GEMINI_API_KEY` 없음 | Gemini 모델 사용 시 `.env` 파일에 설정하거나 `export GEMINI_API_KEY=...` 실행 |
+| `OPENAI_API_KEY` 없음 | `gpt-image-2` 사용 시 `.env` 파일에 설정하거나 `export OPENAI_API_KEY=...` 실행 |
 | 인터뷰가 중단됨 | `interview-result.json`이 부분 저장되어 있으면 수동 편집 후 `--skip-interview` |
 | 문서 생성 품질 낮음 | `interview-result.json`의 내용이 충분한지 확인. 부족하면 인터뷰 재진행 |
 | ref 이미지 스타일 불일치 | `art-direction.md`의 작화 스타일 섹션을 보강 후 3단계 재실행 |

@@ -23,7 +23,7 @@ argument-hint: "--episode N [--slide N] [--content-dir path] [--model model-name
 - `--episode N` (필수): 생성할 에피소드 번호
 - `--slide N` (선택): 특정 슬라이드만 생성 (미지정 시 전체)
 - `--content-dir path` (선택): 콘텐츠 문서 루트 디렉토리 (기본: `./content`)
-- `--model model-name` (선택): Gemini 모델을 고정 지정. 미지정 시 슬라이드별 자동 선택
+- `--model model-name` (선택): 이미지 모델을 고정 지정. 미지정 시 슬라이드별 Gemini 자동 선택. `gpt-image-2` 지정 가능
 
 ## 모델 자동 선택 전략
 
@@ -35,9 +35,12 @@ argument-hint: "--episode N [--slide N] [--content-dir path] [--model model-name
 | `textOverlay` 없음 | `gemini-3.1-flash-image-preview` (Flash) | 빠르고 저렴 |
 | E단계 에셋 생성 | Flash 권장 | 참고용 에셋, 텍스트 불필요 |
 
+`--model gpt-image-2`를 지정하면 자동 선택을 무시하고 OpenAI Image API로 생성한다.
+
 ## 사전 조건
 
-- `GEMINI_API_KEY` 환경변수 설정
+- Gemini 모델 사용 시 `GEMINI_API_KEY` 환경변수 설정
+- OpenAI 모델(`gpt-image-2`) 사용 시 `OPENAI_API_KEY` 환경변수 설정
 - `{content-dir}/` 아래에 콘텐츠 문서가 존재해야 함
 - 프로젝트 루트에 `zod`, `@google/genai` 패키지가 설치된 상태 (`npm install`)
 - 사전 조건이 충족되지 않으면 스킬 실행 전에 사용자에게 안내하고, 필요한 패키지를 설치할지 확인한다

@@ -1,8 +1,17 @@
 import { GoogleGenAI } from '@google/genai';
 import * as fs from 'fs';
 import * as path from 'path';
-import { config, models } from '../../toon-slide/lib/config.js';
+import {
+  type ImageModel,
+  isGeminiImageModel,
+  models,
+  requireGeminiApiKey,
+  requireOpenAIApiKey,
+  resolveImageModel,
+  validateModel,
+} from '../../toon-slide/lib/config.js';
 import { withRetry } from '../../toon-slide/lib/image-utils.js';
+import { generateOpenAIImage } from '../../toon-slide/lib/openai-image.js';
 
 // --- Types ---
 
@@ -38,7 +47,7 @@ function parseArgs() {
       'Options:\n' +
       '  --content-dir   Path to content directory (required)\n' +
       '  --output-dir    Output directory (default: <content-dir>/visual/references)\n' +
-      '  --model         Gemini model (default: gemini-3.1-flash-image-preview)\n' +
+      '  --model         Image model (default: gemini-3.1-flash-image-preview; supports gpt-image-2)\n' +
       '  --category      Filter categories: character, background, tone-master (default: all)',
     );
     process.exit(1);
@@ -254,10 +263,23 @@ function extractSection(markdown: string, ...keywords: string[]): string {
 // --- Generate a single reference image ---
 
 async function generateRefImage(
-  ai: GoogleGenAI,
-  model: string,
+  ai: GoogleGenAI | null,
+  model: ImageModel,
   spec: RefSpec,
 ): Promise<string> {
+  if (!isGeminiImageModel(model)) {
+    return generateOpenAIImage({
+      apiKey: requireOpenAIApiKey(),
+      model,
+      prompt: spec.prompt,
+      ratio: '4:5',
+    });
+  }
+
+  if (!ai) {
+    throw new Error('Gemini client is required for Gemini models');
+  }
+
   const response = await ai.models.generateContent({
     model,
     contents: [{ role: 'user', parts: [{ text: spec.prompt }] }],
@@ -283,7 +305,11 @@ async function generateRefImage(
 
 async function main() {
   const args = parseArgs();
-  const ai = new GoogleGenAI({ apiKey: config.GEMINI_API_KEY });
+  validateModel(args.model);
+  const model = resolveImageModel(args.model);
+  const ai = isGeminiImageModel(model)
+    ? new GoogleGenAI({ apiKey: requireGeminiApiKey() })
+    : null;
 
   // Read content documents
   const artDirection = readContentFile(args.contentDir, 'visual', 'art-direction.md');
@@ -307,7 +333,7 @@ async function main() {
   const specs = buildRefSpecs(artDirection, characterDetail, characterSheet, args.categories);
 
   console.log(`\n[generate-refs] ${specs.length} reference images to generate`);
-  console.log(`[model] ${args.model}`);
+  console.log(`[model] ${model}`);
   console.log(`[content] ${args.contentDir}`);
   console.log(`[output] ${outputDir}\n`);
 
@@ -323,7 +349,7 @@ async function main() {
     console.log(`  -> ${spec.fileName}`);
 
     try {
-      const imageBase64 = await withRetry(() => generateRefImage(ai, args.model, spec));
+      const imageBase64 = await withRetry(() => generateRefImage(ai, model, spec));
 
       fs.writeFileSync(outputPath, Buffer.from(imageBase64, 'base64'));
 
@@ -332,7 +358,7 @@ async function main() {
       fs.writeFileSync(metaPath, JSON.stringify({
         name: spec.name,
         category: spec.category,
-        model: args.model,
+        model,
         promptLength: spec.prompt.length,
         timestamp: new Date().toISOString(),
       }, null, 2));

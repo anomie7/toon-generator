@@ -8,18 +8,18 @@
 
 ## Overview
 
-**toon-generator** is a Claude Code plugin that bundles 3 skills and 4 sub-agents to automate the entire Instagram webtoon creation process — from content planning to image generation to video reels.
+**toon-generator** is a Claude Code plugin that bundles 4 skills and 5 sub-agents to automate the entire Instagram webtoon creation process — from content planning to image generation to video reels.
 
 | Skill | What it does |
 |-------|-------------|
 | **toon-prep** | Socratic interview -> content docs -> reference images |
-| **toon-gen** | Prompt JSON -> ref search/inspect -> Gemini API image generation |
+| **toon-slide** | Prompt JSON -> ref search/inspect -> Gemini or OpenAI API image generation |
 | **toon-reels** | Slide images -> MP4 reels with BGM |
 
 | Agent | Skill | Role |
 |-------|-------|------|
-| **story-writer** | toon-gen | Generates image prompt JSON from storyboards |
-| **reference-explorer** | toon-gen | Searches and recommends reference images |
+| **story-writer** | toon-slide | Generates image prompt JSON from storyboards |
+| **reference-explorer** | toon-slide | Searches and recommends reference images |
 | **interviewer** | toon-prep | Collects project info via Socratic interview |
 | **doc-generator** | toon-prep | Auto-generates content documents |
 
@@ -42,6 +42,7 @@ Skills and agents are auto-discovered after installation.
 ## Prerequisites
 
 - [GEMINI_API_KEY](https://aistudio.google.com/) — Google AI Studio
+- OPENAI_API_KEY — required only when using `gpt-image-2`
 - Node.js >= 18
 - ffmpeg (`brew install ffmpeg`) — for toon-reels only
 
@@ -58,13 +59,16 @@ Runs a Socratic interview to collect your webtoon concept, then auto-generates:
 - Episode designs and storyboards (conti)
 - Reference images (character, background, tone masters)
 
-### Step 2: Image Generation (toon-gen)
+### Step 2: Image Generation (toon-slide)
 
 ```bash
-/toon-gen --episode 1
+/toon-slide --episode 1
+
+# Use OpenAI GPT Image 2
+/toon-slide --episode 1 --model gpt-image-2
 ```
 
-For each slide: searches reference images → validates via Gemini API → generates the final illustration. Auto-selects Pro model for slides with Korean text, Flash for text-free slides.
+For each slide: searches reference images → validates via Gemini API → generates the final illustration. Auto-selects Pro model for slides with Korean text, Flash for text-free slides. Pass `--model gpt-image-2` to generate with OpenAI GPT Image 2 instead.
 
 ### Step 3: Reels Video (toon-reels)
 
@@ -81,7 +85,7 @@ Converts slide images into an Instagram-ready MP4 with fade transitions and BGM.
 | Korean text present | `gemini-3-pro-image-preview` (Pro) | Better Korean text rendering |
 | No text | `gemini-3.1-flash-image-preview` (Flash) | Faster, cheaper |
 
-Override with `--model <model-name>`.
+Override with `--model <model-name>`. Supported image generation models include `gemini-3.1-flash-image-preview`, `gemini-3-pro-image-preview`, and `gpt-image-2`.
 
 ## Architecture
 
@@ -100,7 +104,7 @@ toon-generator/
     toon-prep/
       scripts/          #   generate-refs.ts (Gemini API)
       templates/        #   9 document templates
-    toon-gen/
+    toon-slide/
       scripts/          #   generate.ts, inspect.ts
       lib/              #   config, types, image-utils
     toon-reels/

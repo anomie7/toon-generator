@@ -2,12 +2,22 @@ import { GoogleGenAI } from '@google/genai';
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
-import { config, models, validateModel } from '../lib/config.js';
+import {
+  type ImageModel,
+  imageProvider,
+  isGeminiImageModel,
+  models,
+  requireGeminiApiKey,
+  requireOpenAIApiKey,
+  resolveImageModel,
+  validateModel,
+} from '../lib/config.js';
 import {
   EpisodePromptsSchema,
   type EpisodePrompts,
   type ImagePrompt,
 } from '../lib/types.js';
+import { generateOpenAIImage } from '../lib/openai-image.js';
 import {
   type RefImage,
   loadRefImages,
@@ -72,10 +82,9 @@ function parseArgs() {
 
 // --- Model selection ---
 
-function selectModel(explicitModel: string, prompt: ImagePrompt): string {
+function selectModel(explicitModel: string, prompt: ImagePrompt): ImageModel {
   if (explicitModel) {
-    validateModel(explicitModel);
-    return explicitModel;
+    return resolveImageModel(explicitModel);
   }
   // textOverlay or episodeTitle present -> Pro (better Korean text rendering)
   if (prompt.textOverlay || prompt.episodeTitle) return models.imagePro;
@@ -85,9 +94,17 @@ function selectModel(explicitModel: string, prompt: ImagePrompt): string {
 
 // --- Image generation ---
 
+let geminiClient: GoogleGenAI | null = null;
+
+function getGeminiClient(): GoogleGenAI {
+  if (!geminiClient) {
+    geminiClient = new GoogleGenAI({ apiKey: requireGeminiApiKey() });
+  }
+  return geminiClient;
+}
+
 async function generateImage(
-  ai: GoogleGenAI,
-  model: string,
+  model: ImageModel,
   prompt: ImagePrompt,
   stylePrefix: string,
   characterPrefix: string,
@@ -125,7 +142,19 @@ async function generateImage(
     parts.push({ text: fullPrompt });
   }
 
-  const response = await ai.models.generateContent({
+  if (!isGeminiImageModel(model)) {
+    return generateOpenAIImage({
+      apiKey: requireOpenAIApiKey(),
+      model,
+      prompt: refImages.length > 0
+        ? `Use the provided reference image(s) for character, background, and style consistency. Do NOT copy text or titles from reference images. Generate a new illustration based on the following description:\n\n${fullPrompt}`
+        : fullPrompt,
+      refImages,
+      ratio: ratioOverride,
+    });
+  }
+
+  const response = await getGeminiClient().models.generateContent({
     model,
     contents: [{ role: 'user', parts }],
     config: {
@@ -150,7 +179,6 @@ async function generateImage(
 
 async function main() {
   const args = parseArgs();
-  const ai = new GoogleGenAI({ apiKey: config.GEMINI_API_KEY });
 
   // Load prompts
   const rawJson = fs.readFileSync(args.promptPath, 'utf-8');
@@ -198,7 +226,14 @@ async function main() {
   const variantCount = args.variants;
   const modeLabel = args.fix ? `fix (${variantCount} variants)` : 'generate';
 
-  const modelMode = args.model ? `fixed: ${args.model}` : 'auto (Flash/Pro by textOverlay)';
+  if (args.model) {
+    validateModel(args.model);
+  }
+  const fixedModel = args.model ? resolveImageModel(args.model) : '';
+
+  const modelMode = args.model
+    ? `fixed: ${fixedModel} (${imageProvider(fixedModel)})`
+    : 'auto (Gemini Flash/Pro by textOverlay)';
 
   console.log(`\n[EP${episodePrompts.episode}] "${episodePrompts.title}" - ${slidesToGenerate.length} slides`);
   console.log(`[model] ${modelMode}`);
@@ -238,7 +273,6 @@ async function main() {
         for (let dimAttempt = 0; dimAttempt <= maxDimensionRetries; dimAttempt++) {
           const imageBase64 = await withRetry(() =>
             generateImage(
-              ai,
               slideModel,
               cleanedPrompt,
               episodePrompts.stylePrefix,

@@ -25,7 +25,7 @@ argument-hint: "[--content-dir path] [--episode N] [--skip-prep] [--skip-reels]"
 - `--episode N` (선택): 특정 에피소드만 생성 (미지정 시 전체)
 - `--skip-prep` (선택): toon-prep 단계 건너뛰기 (이미 콘텐츠가 준비된 경우)
 - `--skip-reels` (선택): toon-reels 단계 건너뛰기
-- `--model model-name` (선택): Gemini 모델 고정 지정
+- `--model model-name` (선택): 이미지 모델 고정 지정 (`gemini-3.1-flash-image-preview`, `gemini-3-pro-image-preview`, `gpt-image-2`)
 
 ## 전체 워크플로우
 

@@ -158,9 +158,15 @@ npm install
    export GEMINI_API_KEY="your-key-here"
    ```
 
-2. **Node.js >= 18**
+2. **OPENAI_API_KEY** (선택): `gpt-image-2`로 이미지를 생성할 때 필요합니다
 
-3. **ffmpeg** (toon-reels 사용 시):
+   ```bash
+   export OPENAI_API_KEY="your-key-here"
+   ```
+
+3. **Node.js >= 18**
+
+4. **ffmpeg** (toon-reels 사용 시):
 
    ```bash
    brew install ffmpeg  # macOS
@@ -207,6 +213,9 @@ content/
 
 # 프로덕션 모델로 생성
 /toon-slide --episode 1 --model gemini-3-pro-image-preview
+
+# OpenAI GPT Image 2로 생성
+/toon-slide --episode 1 --model gpt-image-2
 ```
 
 #### 3단계: 릴스 영상 (toon-reels)
@@ -233,6 +242,9 @@ content/
 
 # 프로덕션 모델로 생성 (릴스 제외)
 /toon-run --model gemini-3-pro-image-preview --skip-reels
+
+# OpenAI GPT Image 2로 전체 생성 (릴스 제외)
+/toon-run --model gpt-image-2 --skip-reels
 ```
 
 ### 모델 자동 선택
@@ -244,7 +256,7 @@ content/
 | 한글 텍스트 있음 | `gemini-3-pro-image-preview` (Pro) | 한글 렌더링 정확도 우수 |
 | 텍스트 없음 | `gemini-3.1-flash-image-preview` (Flash) | 빠르고 저렴 |
 
-`--model`로 고정 지정하면 자동 선택을 무시합니다.
+`--model`로 고정 지정하면 자동 선택을 무시합니다. OpenAI를 쓰려면 `--model gpt-image-2`를 지정하고 `OPENAI_API_KEY`를 설정하세요.
 
 <details>
 <summary>아키텍처 / 커스터마이징 (개발자용)</summary>

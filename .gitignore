@@ -3,5 +3,6 @@ dist/
 .env
 .env.*
 output/
+tmp/
 *.meta.json
 .DS_Store

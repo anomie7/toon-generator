@@ -1,7 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import * as fs from 'fs';
 import * as path from 'path';
-import { config, models } from '../lib/config.js';
+import { models, requireGeminiApiKey } from '../lib/config.js';
 import type { InspectionResult } from '../lib/types.js';
 import { loadRefImages, withRetry } from '../lib/image-utils.js';
 
@@ -103,7 +103,7 @@ Respond with ONLY a JSON object, no markdown fencing:
 
 async function main() {
   const args = parseArgs();
-  const ai = new GoogleGenAI({ apiKey: config.GEMINI_API_KEY });
+  const ai = new GoogleGenAI({ apiKey: requireGeminiApiKey() });
 
   const refImages = loadRefImages(args.refPaths);
   if (refImages.length === 0) {
