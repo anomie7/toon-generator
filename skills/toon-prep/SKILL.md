@@ -8,7 +8,7 @@ allowed-tools:
   - Agent(interviewer)
   - Agent(doc-generator)
   - Agent(doc-inspector)
-  - Bash(npx tsx ${CLAUDE_SKILL_DIR}/scripts/*)
+  - Bash(node --import tsx ${CLAUDE_SKILL_DIR}/scripts/*)
   - Read
   - Write
   - Glob
@@ -179,7 +179,7 @@ Agent(doc-generator) 호출
 
 **실행:**
 ```bash
-npx tsx ${CLAUDE_SKILL_DIR}/scripts/generate-refs.ts \
+node --import tsx ${CLAUDE_SKILL_DIR}/scripts/generate-refs.ts \
   --content-dir {content-dir} \
   --output-dir {content-dir}/visual/references \
   --model {model}

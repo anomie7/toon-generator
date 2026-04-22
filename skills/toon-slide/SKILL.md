@@ -6,7 +6,7 @@ description: >
 allowed-tools:
   - Agent(story-writer)
   - Agent(reference-explorer)
-  - Bash(npx tsx ${CLAUDE_SKILL_DIR}/scripts/*)
+  - Bash(node --import tsx ${CLAUDE_SKILL_DIR}/scripts/*)
   - Read
   - Write
   - Glob
@@ -139,7 +139,7 @@ reference-explorer가 누락으로 보고한 요소만 새로 생성한다.
 
 **호출:**
 ```bash
-npx tsx ${CLAUDE_SKILL_DIR}/scripts/generate.ts \
+node --import tsx ${CLAUDE_SKILL_DIR}/scripts/generate.ts \
   --prompt {asset_prompt.json} \
   --slide 1 \
   --ratio 4:5 \
@@ -158,7 +158,7 @@ B(+E)에서 확보한 ref를 pipeline-slide.ts에 전달한다.
 
 **호출:**
 ```bash
-npx tsx ${CLAUDE_SKILL_DIR}/scripts/pipeline-slide.ts \
+node --import tsx ${CLAUDE_SKILL_DIR}/scripts/pipeline-slide.ts \
   --prompt output/prompts/EP{N}_prompts.json \
   --slide {S} \
   --ratio 4:5 \
@@ -191,7 +191,7 @@ npx tsx ${CLAUDE_SKILL_DIR}/scripts/pipeline-slide.ts \
 inspect.ts로 생성된 이미지를 검수:
 
 ```bash
-npx tsx ${CLAUDE_SKILL_DIR}/scripts/inspect.ts \
+node --import tsx ${CLAUDE_SKILL_DIR}/scripts/inspect.ts \
   --refs output/EP{N}/EP{N}_S{NN}_{slug}.png \
   --concept "{슬라이드 컨셉}" \
   --prompt "{원본 프롬프트}" \
